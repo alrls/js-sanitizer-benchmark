@@ -6,30 +6,39 @@ const readdirAsync = promisify(fs.readdir);
 const readFileAsync = promisify(fs.readFile);
 
 const MAP_INDEX_TO_FUNC_NAMES = [
-  'bleach', 'bluemonday', 'insane', 'sanitizer', 'sanitizeHtml', 'xssFilters'
+  'bleach', 'bluemonday', 'insane', 'sanitizer', 'sanitizeHtml', 'xss', 'xssFilters'
 ];
 
 let lineCount = 0;
 const globalRating = {
-  bleach: 0,
-  bluemonday: 0,
-  insane: 0,
-  sanitizer: 0,
-  sanitizeHtml: 0,
-  xssFilters: 0
+  bleach: { count: 0, time: 0 },
+  bluemonday: { count: 0, time: 0 },
+  insane: { count: 0, time: 0 },
+  sanitizer: { count: 0, time: 0 },
+  sanitizeHtml: { count: 0, time: 0 },
+  xss: { count: 0, time: 0 },
+  xssFilters: { count: 0, time: 0 }
 };
 
-function getSuccessfulSanitizers(string) {
-  const successfulSanitizers = [];
+function calcWorkingTime(func, arg) {
+  const startTime = new Date().getTime();
+  const funcResult = func(arg);
+  const endTime = new Date().getTime();
+  return {
+    result: funcResult,
+    time: endTime - startTime
+  };
+}
 
+function trySanitize(string) {
   sanitizeFunctions.forEach((func, index) => {
-    const sanitizedLine = func(string);
-    if (sanitizedLine !== string) {
-      successfulSanitizers.push(MAP_INDEX_TO_FUNC_NAMES[index]);
+    const { result, time } = calcWorkingTime(func, string);
+    if (result !== string) {
+      const functionName = MAP_INDEX_TO_FUNC_NAMES[index];
+      globalRating[functionName].count += 1;
+      globalRating[functionName].time += time;
     }
   });
-
-  return successfulSanitizers;
 }
 
 async function main() {
@@ -50,10 +59,7 @@ async function main() {
       }
       
       lineCount += 1;
-      const successfulSanitizers = getSuccessfulSanitizers(line);
-      successfulSanitizers.forEach(sanitizerName => {
-        globalRating[sanitizerName] += 1;
-      });
+      trySanitize(line);
     });
   });
 
