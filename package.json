@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "yarn build && node ./.build/main.js",
+    "start:payloads": "yarn build && node ./.build/main.js './src/data/payloads'",
+    "start:pages": "yarn build && node ./.build/main.js './src/data/pages'",
     "build": "rm -rf .build && webpack",
     "eslint": "eslint 'src/**/*.js'"
   },

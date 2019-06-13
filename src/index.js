@@ -9,6 +9,7 @@ const MAP_INDEX_TO_FUNC_NAMES = [
   'bleach', 'bluemonday', 'insane', 'sanitizer', 'sanitizeHtml', 'xssFilters'
 ];
 
+let lineCount = 0;
 const globalRating = {
   bleach: 0,
   bluemonday: 0,
@@ -31,13 +32,12 @@ function getSuccessfulSanitizers(string) {
   return successfulSanitizers;
 }
 
-let payloadLength = 0;
 async function main() {
-  const payloadsPath = './src/payloads';
-  const files = await readdirAsync(payloadsPath);
+  const pathToFolder = process.argv[2];
+  const files = await readdirAsync(pathToFolder);
 
   const readFilePromises = files.map(item => {
-    const pathToFile = `./src/payloads/${item}`;
+    const pathToFile = `${pathToFolder}/${item}`;
     return readFileAsync(pathToFile, 'utf8');
   });
   const fileContentArray = await Promise.all(readFilePromises);
@@ -49,13 +49,15 @@ async function main() {
         return;
       }
       
-      payloadLength += 1;
+      lineCount += 1;
       const successfulSanitizers = getSuccessfulSanitizers(line);
       successfulSanitizers.forEach(sanitizerName => {
         globalRating[sanitizerName] += 1;
       });
     });
   });
-  console.log(payloadLength, globalRating);
+
+  // eslint-disable-next-line no-console
+  console.log(lineCount, globalRating);
 }
 main();
