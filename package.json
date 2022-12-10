@@ -22,7 +22,7 @@
     "bluemonday": "^1.0.1",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "insane": "^2.6.2",
     "sanitize-html": "^1.20.1",
     "sanitizer": "^0.1.3",
